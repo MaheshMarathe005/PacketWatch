@@ -1,0 +1,736 @@
+# 1. What is Wireshark?
+
+Wireshark is a **network protocol analyzer** used to capture, inspect, and analyze network traffic.
+
+It allows us to see how devices communicate with each other over a network.
+
+Wireshark can decode many different protocols and display their headers, fields, flags, addresses, ports, and payload information.
+
+It is widely used for:
+
+- Network troubleshooting
+- Protocol analysis
+- Network administration
+- Cybersecurity analysis
+- Learning computer networks
+- Debugging applications
+- Detecting network problems
+- Studying network behavior
+
+
+
+
+
+Wireshark can capture traffic from interfaces such as:
+
+- Wi-Fi
+- Ethernet
+- Loopback
+- Virtual network interfaces
+- VPN interfaces
+
+Captured traffic can be saved in formats such as:
+
+```text
+.pcap
+.pcapng
+
+
+DNS Query
+     ↓
+DNS Response
+     ↓
+TCP Connection
+     ↓
+TLS Handshake
+     ↓
+Encrypted Application Data
+
+
+
+
+
+Wireshark Interface
+
+The Wireshark interface is generally divided into three important sections.
+
+3.1 Packet List Pane
+
+The Packet List Pane displays captured packets in rows.
+
+Common columns include:
+
+Column	Meaning
+No.	Packet/frame number
+Time	Time at which packet was captured
+Source	Source address
+Destination	Destination address
+Protocol	Detected protocol
+Length	Packet/frame length
+Info	Short description of the packet
+
+Example:
+
+No.   Time       Source          Destination       Protocol   Length   Info
+1     0.000000   192.168.1.10    192.168.1.1       ARP        42       Who has...
+2     0.001234   192.168.1.1     192.168.1.10      ARP        42       192.168.1.1 is at...
+3     0.002345   192.168.1.10    8.8.8.8           ICMP       98       Echo request
+3.2 Packet Details Pane
+
+This section displays the selected packet as a protocol tree.
+
+For example:
+
+Frame
+Ethernet II
+Internet Protocol Version 4
+Transmission Control Protocol
+Hypertext Transfer Protocol
+
+Each section can be expanded to view individual fields.
+
+3.3 Packet Bytes Pane
+
+This pane displays the raw bytes of the selected packet.
+
+It normally contains:
+
+Hexadecimal representation
+ASCII representation
+
+This is useful when examining the exact bytes transmitted over the network.
+
+4. How a Packet is Structured
+
+A typical packet can contain multiple protocol layers.
+
+A simplified structure is:
+
+Ethernet
+    ↓
+IP
+    ↓
+TCP / UDP / ICMP
+    ↓
+Application Protocol
+
+For example:
+
+Ethernet II
+    ↓
+IPv4
+    ↓
+TCP
+    ↓
+HTTP
+
+Another example:
+
+Ethernet II
+    ↓
+IPv4
+    ↓
+UDP
+    ↓
+DNS
+
+Not every packet contains every layer.
+
+For example, ARP operates directly at the link layer and is not carried inside TCP or UDP.
+
+5. OSI Model and Wireshark
+
+The OSI model contains seven layers.
+
+OSI Layer	Name	Example Protocols
+7	Application	HTTP, DNS, DHCP, FTP
+6	Presentation	Encryption/encoding concepts
+5	Session	Session management
+4	Transport	TCP, UDP
+3	Network	IPv4, IPv6, ICMP
+2	Data Link	Ethernet, ARP
+1	Physical	Cables, radio, signals
+
+Wireshark mainly exposes information from Layers 2–7.
+
+A common packet hierarchy is:
+
+Layer 2 → Ethernet
+Layer 3 → IPv4
+Layer 4 → TCP
+Layer 7 → HTTP
+6. Ethernet II
+
+Ethernet is commonly used at the Data Link Layer.
+
+An Ethernet II frame contains fields such as:
+
+Field	Description
+Destination MAC	MAC address of receiving device on the local link
+Source MAC	MAC address of transmitting device
+EtherType	Identifies the encapsulated protocol
+Payload	Data carried by Ethernet
+FCS	Frame integrity field, when available in the capture
+
+Common EtherTypes include:
+
+0x0800 → IPv4
+0x86DD → IPv6
+0x0806 → ARP
+MAC Address
+
+A MAC address identifies a network interface at the local link layer.
+
+Example:
+
+00:11:22:33:44:55
+
+Important:
+
+MAC addresses are primarily used for local network delivery, while IP addresses provide logical addressing across networks.
+
+7. ARP
+Address Resolution Protocol
+
+ARP is used in IPv4 networks to discover the MAC address associated with an IPv4 address on the local network.
+
+Suppose:
+
+Computer IP: 192.168.1.10
+Gateway IP:  192.168.1.1
+
+The computer may first need to discover the gateway's MAC address.
+
+It sends an ARP Request:
+
+Who has 192.168.1.1?
+Tell 192.168.1.10
+
+The gateway responds:
+
+192.168.1.1 is at AA:BB:CC:DD:EE:FF
+Important ARP Fields
+Field	Meaning
+Hardware Type	Type of link-layer hardware
+Protocol Type	Network protocol being resolved
+Opcode	Request or reply
+Sender MAC	MAC address of sender
+Sender IP	IP address of sender
+Target MAC	Target MAC address
+Target IP	IP address being resolved
+Wireshark Filter
+arp
+
+This displays ARP packets.
+
+8. IPv4
+
+IPv4 is a Network Layer protocol.
+
+Example IPv4 address:
+
+192.168.1.10
+
+Important IPv4 header fields include:
+
+Field	Description
+Version	IPv4 uses version 4
+IHL	IPv4 header length
+DSCP/ECN	Traffic and congestion-related information
+Total Length	Complete IP packet length
+Identification	Used for fragmentation
+Flags	Fragmentation control
+Fragment Offset	Position of a fragment
+TTL	Time To Live
+Protocol	Identifies next protocol
+Header Checksum	IPv4 header integrity check
+Source Address	Sender IP
+Destination Address	Receiver IP
+Protocol Field
+
+The IPv4 Protocol field identifies the next protocol.
+
+Common values:
+
+1  → ICMP
+6  → TCP
+17 → UDP
+9. IPv6
+
+IPv6 is the successor to IPv4.
+
+IPv6 addresses are 128 bits long.
+
+Example:
+
+2001:db8::1
+
+Important IPv6 fields include:
+
+Field	Description
+Version	Always 6
+Traffic Class	Traffic priority/congestion information
+Flow Label	Identifies packet flows
+Payload Length	Length after IPv6 header
+Next Header	Identifies next protocol/header
+Hop Limit	Similar purpose to IPv4 TTL
+Source Address	Sender IPv6 address
+Destination Address	Receiver IPv6 address
+
+IPv6 does not use ARP. Instead, IPv6 uses Neighbor Discovery Protocol (NDP).
+
+10. ICMP
+
+ICMP stands for:
+
+Internet Control Message Protocol
+
+ICMP is mainly used for network diagnostics and control messages.
+
+The ping command commonly uses ICMP.
+
+Example:
+
+ping 8.8.8.8
+
+The client sends:
+
+ICMP Echo Request
+
+The destination responds with:
+
+ICMP Echo Reply
+Useful Filters
+icmp
+
+Display all ICMP packets.
+
+icmp.type == 8
+
+Display IPv4 Echo Requests.
+
+icmp.type == 0
+
+Display IPv4 Echo Replies.
+
+Important ICMP Fields
+Field	Description
+Type	Identifies ICMP message type
+Code	Provides additional information
+Checksum	Error detection
+Identifier	Helps identify an echo exchange
+Sequence Number	Identifies individual echo messages
+Data	Payload
+11. TCP
+
+TCP stands for:
+
+Transmission Control Protocol
+
+TCP is a connection-oriented transport protocol.
+
+TCP provides:
+
+Reliable delivery
+Ordered delivery
+Error detection
+Flow control
+Retransmission
+Connection management
+
+TCP uses ports to identify applications/services.
+
+Examples:
+
+HTTP  → 80
+HTTPS → 443
+SSH   → 22
+DNS   → commonly 53
+TCP Header Fields
+Field	Description
+Source Port	Port used by sender
+Destination Port	Port used by receiver
+Sequence Number	Tracks byte position
+Acknowledgment Number	Indicates next expected byte when ACK is valid
+Header Length	TCP header size
+Flags	Connection/control information
+Window Size	Receiver's advertised receive capacity
+Checksum	Error detection
+Urgent Pointer	Used with URG
+Options	MSS, SACK, timestamps, window scaling, etc.
+Payload	Application data
+12. TCP Three-Way Handshake
+
+Before sending normal application data, TCP usually establishes a connection using a three-way handshake.
+
+Step 1 – SYN
+
+Client sends:
+
+SYN
+
+Purpose:
+
+Request connection
+Synchronize sequence numbers
+Step 2 – SYN + ACK
+
+Server responds:
+
+SYN + ACK
+
+Purpose:
+
+Acknowledge client's SYN
+Send server's own SYN
+Step 3 – ACK
+
+Client sends:
+
+ACK
+
+The TCP connection is now established.
+
+Simplified:
+
+Client                    Server
+  |                         |
+  | -------- SYN ---------> |
+  |                         |
+  | <----- SYN + ACK ------ |
+  |                         |
+  | -------- ACK ---------> |
+  |                         |
+  |      Connection         |
+  |      Established         |
+Wireshark Filter
+tcp.flags.syn == 1
+
+More specifically:
+
+tcp.flags.syn == 1 && tcp.flags.ack == 0
+
+This is useful for finding initial SYN packets.
+
+13. TCP Flags
+
+TCP contains several important flags.
+
+Flag	Meaning
+SYN	Starts/synchronizes a TCP connection
+ACK	Acknowledges received information
+FIN	Gracefully closes a connection
+RST	Resets a connection
+PSH	Requests prompt delivery of buffered data
+URG	Indicates urgent pointer significance
+ECE	ECN-related signaling
+CWR	Congestion Window Reduced
+SYN
+tcp.flags.syn == 1
+
+Used to identify TCP connection initiation.
+
+FIN
+tcp.flags.fin == 1
+
+Used during normal TCP connection termination.
+
+RST
+tcp.flags.reset == 1
+
+Used when a TCP connection is reset.
+
+14. TCP Connection Termination
+
+A TCP connection can normally be closed using FIN and ACK messages.
+
+A simplified exchange is:
+
+Client → Server : FIN
+Server → Client : ACK
+Server → Client : FIN
+Client → Server : ACK
+
+This is often called a TCP four-way termination.
+
+An RST is different.
+
+tcp.flags.reset == 1
+
+A reset indicates an abrupt termination/reset.
+
+15. TCP Troubleshooting
+
+Wireshark provides useful TCP analysis indicators.
+
+Retransmissions
+tcp.analysis.retransmission
+
+Retransmission means a TCP segment has been sent again.
+
+Possible causes include:
+
+Packet loss
+Congestion
+Wireless interference
+Network problems
+Receiver delays
+
+A retransmission is not automatically proof of a network attack.
+
+Duplicate ACK
+tcp.analysis.duplicate_ack
+
+Duplicate acknowledgments may indicate:
+
+Packet loss
+Out-of-order delivery
+Network congestion
+Out-of-Order Packets
+tcp.analysis.out_of_order
+
+Shows packets that Wireshark considers to have arrived out of sequence.
+
+Zero Window
+tcp.analysis.zero_window
+
+Indicates that a receiver has advertised a TCP receive window of zero.
+
+This can mean the receiving application or host is temporarily unable to accept more data.
+
+16. UDP
+
+UDP stands for:
+
+User Datagram Protocol
+
+UDP is a connectionless transport protocol.
+
+Unlike TCP, UDP does not provide:
+
+Three-way handshake
+Guaranteed delivery
+Ordering
+TCP-style retransmission
+TCP-style flow control
+
+UDP has a very small header.
+
+UDP Header
+Field	Description
+Source Port	Sender's port
+Destination Port	Receiver's port
+Length	UDP header + data length
+Checksum	Error detection
+Data	Application payload
+
+Useful filter:
+
+udp
+
+Example:
+
+udp.port == 53
+17. DNS
+
+DNS stands for:
+
+Domain Name System
+
+DNS converts domain names into IP addresses and can provide other types of information.
+
+Example:
+
+www.example.com
+        ↓
+93.184.216.34
+
+DNS commonly uses:
+
+UDP port 53
+
+TCP can also be used for DNS in situations where TCP is appropriate.
+
+Modern encrypted DNS may use protocols such as DNS over HTTPS or DNS over TLS.
+
+DNS Query
+
+A client asks:
+
+What is the IP address of example.com?
+DNS Response
+
+The DNS server responds with the requested record.
+
+Useful Filters
+dns
+
+All DNS traffic.
+
+dns.flags.response == 0
+
+DNS queries.
+
+dns.flags.response == 1
+
+DNS responses.
+
+dns.qry.type == 1
+
+A record queries.
+
+dns.qry.type == 28
+
+AAAA record queries.
+
+dns.qry.name == "example.com"
+
+Queries for a specific domain.
+
+18. DHCP
+
+DHCP stands for:
+
+Dynamic Host Configuration Protocol
+
+DHCP automatically provides network configuration to hosts.
+
+It can provide:
+
+IP address
+Subnet mask
+Default gateway
+DNS server
+Lease information
+
+The common DHCP process is:
+
+DORA
+
+Meaning:
+
+Discover
+   ↓
+Offer
+   ↓
+Request
+   ↓
+Acknowledge
+1. DHCP Discover
+
+Client searches for a DHCP server.
+
+2. DHCP Offer
+
+Server offers an IP configuration.
+
+3. DHCP Request
+
+Client requests the offered configuration.
+
+4. DHCP ACK
+
+Server confirms the configuration.
+
+Useful Wireshark filter:
+
+bootp
+
+Wireshark commonly displays DHCP under the BOOTP protocol family.
+
+19. HTTP
+
+HTTP stands for:
+
+Hypertext Transfer Protocol
+
+HTTP is an application-layer protocol used for web communication.
+
+Traditional HTTP commonly uses:
+
+TCP port 80
+
+HTTP requests can contain methods such as:
+
+GET
+POST
+PUT
+DELETE
+HEAD
+GET
+
+Requests a resource.
+
+Example:
+
+GET /index.html HTTP/1.1
+POST
+
+Sends data to a server.
+
+HTTP Response Codes
+Code	Meaning
+200	OK / successful
+201	Created
+301	Permanent redirect
+302	Temporary redirect
+400	Bad Request
+401	Unauthorized
+403	Forbidden
+404	Not Found
+500	Internal Server Error
+502	Bad Gateway
+503	Service Unavailable
+Useful Filters
+http
+http.request
+http.request.method == "GET"
+http.response.code == 200
+http.response.code == 404
+http.response.code >= 400
+20. HTTPS and TLS
+
+HTTPS is essentially HTTP protected by TLS.
+
+HTTPS commonly uses:
+
+TCP port 443
+
+TLS provides encryption and helps protect application data in transit.
+
+A simplified connection looks like:
+
+TCP Handshake
+      ↓
+TLS Handshake
+      ↓
+Encrypted Application Data
+
+Useful filter:
+
+tls
+
+TLS Client Hello:
+
+tls.handshake.type == 1
+
+The Client Hello is an important early message in the TLS handshake.
+
+It can contain information such as:
+
+Supported TLS versions
+Cipher suites
+Extensions
+Server Name Indication (when present)
+Supported groups
+Signature algorithms
+
+The exact fields depend on the TLS version and configuration.
+
+Important Point
+
+With normal HTTPS traffic, Wireshark can usually show metadata and TLS handshake information, but the application data is encrypted.
+
+Therefore:
+
+Seeing HTTPS packets in Wireshark does not mean that the webpage contents are automatically readable.
