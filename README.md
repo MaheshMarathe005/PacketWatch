@@ -1,11 +1,11 @@
 # PacketWatch
 
-Turn a Wireshark capture into an actionable **network-security report**. PacketWatch
-ingests a `.pcap`/`.pcapng`/CSV capture, loads it into a **SQLite** analysis
-database, runs a battery of **pandas/numpy** threat detectors, draws
-**matplotlib** charts, and writes a Markdown report that maps every finding to a
-MITRE ATT&CK technique where applicable, with concrete remediation. Operational
-DNS findings are labelled separately from suspected attacks.
+PacketWatch is a local network-security analysis tool for Wireshark captures.
+It ingests `.pcap`/`.pcapng`/CSV data, loads packets into a **SQLite** analysis
+database, runs **pandas/numpy** threat detectors, renders **matplotlib** charts,
+and writes a Markdown report with MITRE ATT&CK mappings where applicable and
+concrete remediation guidance. Operational DNS findings are labelled separately
+from suspected attacks.
 
 It ships with a synthetic capture generator so the whole pipeline runs out of
 the box — no live network or sample pcap required.
@@ -63,9 +63,9 @@ pip install -r requirements.txt
 ```
 
 `tshark` (bundled with [Wireshark](https://www.wireshark.org/)) is only needed
-to read `.pcap`/`.pcapng` files directly. CSV captures need no extra tools — you
-can also export one from Wireshark via *File → Export Packet Dissections → As
-CSV*. Packet-list CSV includes only displayed columns, so it has reduced
+to read `.pcap`/`.pcapng` files directly. CSV captures need no extra tools and
+can be exported from Wireshark via *File → Export Packet Dissections → As CSV*.
+Packet-list CSV includes only displayed columns, so it has reduced
 detection coverage. Its `Time` column must contain numeric seconds (relative
 or epoch). Import warnings are shown in the CLI and Markdown report; the
 dashboard reminds CSV users to check coverage.
@@ -203,7 +203,7 @@ The suite asserts every planted attack is detected, that benign traffic yields
 ## Notes & limitations
 
 - Detections are **heuristic**; validate against full packet context before
-  acting. Thresholds are function arguments you can tune.
+  acting. Thresholds are exposed as function arguments for local tuning.
 - Sweep detection counts distinct targets, so retries to one server do not
   inflate host diversity. Approved scanners and management tools can still
   trigger it. Slow sweeps below the window threshold are not detected.
