@@ -1,0 +1,44 @@
+# PacketWatch
+__pycache__/
+*.pyc
+.pytest_cache/
+.mplcache/
+
+# Local environments and editor state
+.venv/
+venv/
+env/
+.claude/
+.idea/
+.vscode/
+.DS_Store
+
+# Secrets, API keys, certificates, and local configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+credentials/
+api_keys*
+*api-key*
+*apikey*
+
+# Local Django/runtime data and uploaded captures
+db.sqlite3
+media/
+
+# Generated analysis output
+output/
+
+# Other local databases
+*.db
+
+# Packet capture data is normally sensitive and should stay local
+*.pcap
+*.pcapng
+captures/
+!sample_captures/*.csv
