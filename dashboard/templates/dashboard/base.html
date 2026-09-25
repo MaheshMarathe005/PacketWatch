@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}PacketWatch{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'dashboard/style.css' %}">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{% url 'index' %}">
+      <span class="brand-mark">🛡️</span>
+      <span class="brand-text">Packet<strong>Watch</strong></span>
+      <span class="brand-tag">packet capture threat analytics</span>
+    </a>
+    <nav class="topnav">
+      <a href="{% url 'index' %}">Dashboard</a>
+      <a href="/admin/" title="Django admin">Admin</a>
+    </nav>
+  </header>
+
+  {% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+      <div class="toast {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <main class="wrap">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="foot">
+    <span>PacketWatch &middot; pandas · numpy · matplotlib · SQLite · Django</span>
+    <span class="foot-note">Heuristic detections — validate against full packet context.</span>
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

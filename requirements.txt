@@ -1,0 +1,12 @@
+# PacketWatch - core dependencies
+# Analysis stack
+numpy>=1.24
+pandas>=2.0
+matplotlib>=3.7
+
+# Optional pcap ingestion helpers (a working `tshark` binary is preferred and
+# used first; these are only needed if you want pure-Python pcap parsing)
+# scapy>=2.5
+
+# Testing
+pytest>=7.0

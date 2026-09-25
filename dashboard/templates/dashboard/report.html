@@ -1,0 +1,96 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block title %}{{ run.name }} — PacketWatch{% endblock %}
+
+{% block content %}
+<div class="report-head">
+  <div>
+    <a class="back" href="{% url 'index' %}">← All analyses</a>
+    <h1>{{ run.name }}</h1>
+    <p class="sub">
+      <span class="tag">{{ run.get_source_display }}</span>
+      analysed {{ run.created|date:"Y-m-d H:i" }}
+    </p>
+  </div>
+  <div class="report-actions">
+    <a class="btn-sm" href="{% get_media_prefix %}{{ run.report_rel }}" download>⬇ report.md</a>
+    <a class="btn-sm" href="{% get_media_prefix %}{{ run.json_rel }}" download>⬇ findings.json</a>
+    <a class="btn-sm primary" href="{% url 'index' %}">＋ New analysis</a>
+  </div>
+</div>
+
+<section class="cards">
+  <div class="metric"><span class="m-val">{{ run.packets }}</span><span class="m-lab">packets</span></div>
+  <div class="metric"><span class="m-val">{{ run.duration_s|floatformat:1 }}s</span><span class="m-lab">duration</span></div>
+  <div class="metric"><span class="m-val">{{ run.total_bytes|filesizeformat }}</span><span class="m-lab">volume</span></div>
+  <div class="metric"><span class="m-val">{{ run.distinct_sources }}</span><span class="m-lab">sources</span></div>
+  <div class="metric"><span class="m-val">{{ run.distinct_destinations }}</span><span class="m-lab">destinations</span></div>
+  <div class="metric danger-metric"><span class="m-val">{{ run.finding_count }}</span><span class="m-lab">findings</span></div>
+</section>
+
+{% if sev_summary %}
+<section class="sevbar">
+  {% for sev, n in sev_summary %}
+    <span class="sev-pill sev-{{ sev|lower }}">{{ sev }} · {{ n }}</span>
+  {% endfor %}
+</section>
+{% endif %}
+
+<section class="findings">
+  <h2>Findings</h2>
+  {% if run.findings %}
+    {% for f in run.findings %}
+    <article class="finding sev-border-{{ f.severity|lower }}">
+      <header class="f-head">
+        <span class="sev sev-{{ f.severity|lower }}">{{ f.severity }}</span>
+        <h3>{{ f.title }}</h3>
+        <span class="f-cat">{{ f.category }}</span>
+      </header>
+      <p class="f-mitre">🎯 {{ f.mitre }}</p>
+      {% if f.metrics %}
+      <div class="metric-chips">
+        {% for k, v in f.metrics.items %}<span class="chip">{{ k }}: <b>{{ v }}</b></span>{% endfor %}
+      </div>
+      {% endif %}
+      <p class="f-desc">{{ f.description }}</p>
+
+      {% if f.evidence.columns %}
+      <details class="evidence">
+        <summary>Evidence ({{ f.evidence.total }} row{{ f.evidence.total|pluralize }})</summary>
+        <div class="table-scroll">
+          <table>
+            <thead><tr>{% for c in f.evidence.columns %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+            <tbody>
+              {% for row in f.evidence.rows %}
+              <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% if f.evidence.truncated %}<p class="muted">Showing first rows of {{ f.evidence.total }}.</p>{% endif %}
+      </details>
+      {% endif %}
+
+      <div class="reco"><strong>Recommended action.</strong> {{ f.recommendation }}</div>
+    </article>
+    {% endfor %}
+  {% else %}
+    <div class="clean">✅ No threats detected by the current rule set.</div>
+  {% endif %}
+</section>
+
+{% if charts %}
+<section class="charts">
+  <h2>Visual analytics</h2>
+  <div class="chart-grid">
+    {% for title, path in charts %}
+    <figure class="chart">
+      <img src="{% get_media_prefix %}{{ path }}" alt="{{ title }}" loading="lazy">
+      <figcaption>{{ title }}</figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

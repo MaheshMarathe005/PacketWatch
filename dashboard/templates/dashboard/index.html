@@ -1,0 +1,87 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <h1>Find the real threats hiding in your capture.</h1>
+    <p>Upload a Wireshark capture to investigate suspicious traffic and DNS
+       connectivity problems. Ten detectors check port scans, service sweeps,
+       SYN floods, ARP spoofing, DNS tunnelling and failures, C2 beaconing,
+       exfiltration, brute force and cleartext traffic, with evidence and
+       recommended actions in every report.</p>
+  </div>
+</section>
+
+<section class="grid-2">
+  <form class="card upload" method="post" action="{% url 'analyze' %}"
+        enctype="multipart/form-data" id="uploadForm">
+    {% csrf_token %}
+    <h2>Analyse a capture</h2>
+    <label class="dropzone" id="dropzone" for="fileInput">
+      <input type="file" name="capture" id="fileInput"
+             accept=".pcap,.pcapng,.cap,.csv" hidden>
+      <span class="dz-icon">📡</span>
+      <span class="dz-title" id="dzTitle">Drop a .pcap / .pcapng / .csv here</span>
+      <span class="dz-sub">or click to browse</span>
+    </label>
+    <button type="submit" class="btn btn-primary" id="analyzeBtn">Analyse capture</button>
+    <p class="hint">Real pcap/pcapng parsing uses <code>tshark</code>. No tshark?
+       Export from Wireshark via <em>File → Export Packet Dissections → As CSV</em>.
+       Packet-list CSV supports limited analysis; full captures include the
+       TCP and DNS fields needed by the detailed detectors.</p>
+  </form>
+
+  <form class="card demo" method="post" action="{% url 'analyze' %}">
+    {% csrf_token %}
+    <input type="hidden" name="mode" value="demo">
+    <h2>No capture handy?</h2>
+    <p>Run the built-in <strong>synthetic capture</strong> with benign traffic,
+       attack patterns and DNS failures to see a full report.</p>
+    <button type="submit" class="btn btn-ghost">▶ Run the demo</button>
+    <ul class="chips">
+      <li>Port scan</li><li>SYN flood</li><li>ARP spoof</li><li>DNS tunnel</li>
+      <li>C2 beacon</li><li>Exfiltration</li><li>Brute force</li><li>Cleartext</li>
+      <li>SMB sweep</li><li>DNS failures</li>
+    </ul>
+  </form>
+</section>
+
+<section class="history">
+  <h2>Recent analyses</h2>
+  {% if runs %}
+  <table class="runs">
+    <thead>
+      <tr><th>Capture</th><th>Source</th><th>When</th><th>Packets</th>
+          <th>Findings</th><th>Top severity</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for run in runs %}
+      <tr>
+        <td><a href="{% url 'report_detail' run.pk %}">{{ run.name }}</a></td>
+        <td><span class="tag">{{ run.get_source_display }}</span></td>
+        <td>{{ run.created|date:"Y-m-d H:i" }}</td>
+        <td>{{ run.packets }}</td>
+        <td>{{ run.finding_count }}</td>
+        <td><span class="sev sev-{{ run.top_severity|lower }}">{{ run.top_severity }}</span></td>
+        <td class="row-actions">
+          <a class="btn-sm" href="{% url 'report_detail' run.pk %}">Open</a>
+          <form method="post" action="{% url 'delete_run' run.pk %}"
+                onsubmit="return confirm('Delete this run?');">
+            {% csrf_token %}
+            <button class="btn-sm danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No analyses yet — upload a capture or run the demo above.</p>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'dashboard/app.js' %}"></script>
+{% endblock %}
